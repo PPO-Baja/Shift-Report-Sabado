@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shift Report</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      padding: 16px;
+      max-width: 480px;
+      margin: auto;
+    }
+    header {
+      background: #EB0A1E;
+      color: white;
+      padding: 14px 16px;
+      border-radius: 12px 12px 0 0;
+      text-align: center;
+    }
+    header h1 { font-size: 1.2rem; letter-spacing: 1px; }
+    header p { font-size: 0.8rem; opacity: 0.85; margin-top: 2px; }
+    .card {
+      background: white;
+      border-radius: 0 0 12px 12px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .section { margin-bottom: 16px; }
+    .section h2 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 8px;
+      letter-spacing: 0.8px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric label {
+      font-size: 0.7rem;
+      color: #666;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .metric input,
+    .metric textarea,
+    .metric select {
+      width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #1a1a1a;
+      background: white;
+      resize: none;
+    }
+    .metric textarea { font-size: 0.8rem; font-weight: 400; }
+    .full-width { grid-column: 1 / -1; }
+
+    /* Time selector pills */
+    .time-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .time-pills button {
+      flex: 1 1 calc(25% - 8px);
+      min-width: 60px;
+      padding: 8px 4px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      background: white;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #444;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .time-pills button.active {
+      background: #EB0A1E;
+      border-color: #EB0A1E;
+      color: white;
+    }
+    .time-pills button:hover:not(.active) {
+      border-color: #EB0A1E;
+      color: #EB0A1E;
+    }
+    .custom-time-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .custom-time-row label {
+      font-size: 0.72rem;
+      color: #888;
+      white-space: nowrap;
+    }
+    .custom-time-row input[type="time"] {
+      flex: 1;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #1a1a1a;
+      background: white;
+    }
+    .custom-time-row input[type="time"]:focus {
+      outline: none;
+      border-color: #EB0A1E;
+    }
+
+    .btn-send {
+      width: 100%;
+      background: #25D366;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
+      letter-spacing: 0.5px;
+    }
+    .btn-send:active { opacity: 0.85; }
+    .btn-reset {
+      width: 100%;
+      background: #eee;
+      color: #555;
+      border: none;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .timestamp {
+      text-align: center;
+      font-size: 0.72rem;
+      color: #aaa;
+      margin-top: 12px;
+    }
+    .selected-time-badge {
+      display: inline-block;
+      background: #fff3f3;
+      border: 1px solid #EB0A1E;
+      color: #EB0A1E;
+      border-radius: 6px;
+      padding: 2px 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>📋 SHIFT REPORT</h1>
+  <p id="reportTime">Cargando hora...</p>
+</header>
+
+<div class="card">
+
+  <!-- HORA DEL REPORTE -->
+  <div class="section">
+    <h2>🕐 Hora del Reporte</h2>
+    <div class="time-pills" id="timePills">
+      <!-- generadas por JS -->
+    </div>
+    <div class="custom-time-row">
+      <label>Personalizada:</label>
+      <input type="time" id="customTime" />
+    </div>
+    <div style="text-align:center">
+      <span class="selected-time-badge" id="selectedTimeBadge">Sin seleccionar</span>
+    </div>
+  </div>
+
+  <!-- TÍTULO -->
+  <div class="section">
+    <h2>📌 Tipo de Reporte</h2>
+    <div class="metric">
+      <label>Título</label>
+      <select id="reportTitle">
+        <option value="Final">Final</option>
+        <option value="Hourly">Hourly</option>
+        <option value="Mid-Shift">Mid-Shift</option>
+        <option value="Start of Shift">Start of Shift</option>
+        <option value="End of Shift">End of Shift</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- PRODUCCIÓN -->
+  <div class="section">
+    <h2>🏭 Producción</h2>
+    <div class="grid-2">
+      <div class="metric">
+        <label>Producidas</label>
+        <input type="number" id="produced" value="27" min="0" />
+      </div>
+      <div class="metric">
+        <label>Objetivo</label>
+        <input type="number" id="target" value="28" min="0" />
+      </div>
+      <div class="metric">
+        <label>Buffer UB2</label>
+        <input type="number" id="buffer" value="7" min="0" />
+      </div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="section">
+    <h2>📊 KPIs</h2>
+    <div class="grid-2">
+      <div class="metric">
+        <label>OR (%)</label>
+        <input type="number" id="or" value="95.7" step="0.1" min="0" max="100" />
+      </div>
+      <div class="metric">
+        <label>DRR (%)</label>
+        <input type="number" id="drr" value="88.5" step="0.1" min="0" max="100" />
+      </div>
+    </div>
+  </div>
+
+  <!-- OFFLINE -->
+  <div class="section">
+    <h2>🔴 Offline</h2>
+    <div class="grid-2">
+      <div class="metric">
+        <label>Cantidad Offline</label>
+        <input type="number" id="offlineCount" value="6" min="0" />
+      </div>
+      <div class="metric full-width">
+        <label>Detalle (una razón por línea)</label>
+        <textarea id="offlineDetail" rows="5">1 Arrow n/g install
+3 C-Best
+1 Check engine
+1 Shift lever stuck</textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- PARADAS Y RETRASOS -->
+  <div class="section">
+    <h2>⏱ Paradas & Retrasos</h2>
+    <div class="grid-2">
+      <div class="metric">
+        <label>Work Delay</label>
+        <input type="text" id="workDelay" value="11'35&quot;" placeholder="MM'SS&quot;" />
+      </div>
+      <div class="metric">
+        <label>Short Stop</label>
+        <input type="number" id="shortStop" value="0" min="0" />
+      </div>
+      <div class="metric">
+        <label>Full Stop</label>
+        <input type="number" id="fullStop" value="0" min="0" />
+      </div>
+      <div class="metric">
+        <label>Part Short</label>
+        <input type="number" id="partShort" value="0" min="0" />
+      </div>
+    </div>
+  </div>
+
+  <!-- EQUIPOS -->
+  <div class="section">
+    <h2>🔧 Equipment</h2>
+    <div class="grid-2">
+      <div class="metric">
+        <label>Tiempo</label>
+        <input type="text" id="equipTime" value='20"' />
+      </div>
+      <div class="metric full-width">
+        <label>Detalle</label>
+        <textarea id="equipDetail" rows="2">20" Center Bearing-PE equipment test</textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTONES -->
+  <button class="btn-send" onclick="sendToWhatsApp()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15
+               -.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075
+               -.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059
+               -.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52
+               .149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52
+               -.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51
+               -.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372
+               -.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074
+               .149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625
+               .712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413
+               .248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+      <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.849L.057 23.5
+               l5.797-1.47A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/>
+    </svg>
+    Enviar por WhatsApp
+  </button>
+  <button class="btn-reset" onclick="resetForm()">🔄 Limpiar / Resetear</button>
+
+  <p class="timestamp" id="genTimestamp"></p>
+</div>
+
+<script>
+  // ── Horas predefinidas del turno ──────────────────────────────
+  const shiftHours = [
+    '6:00 AM','7:00 AM','8:00 AM','9:00 AM',
+    '10:00 AM','11:00 AM','12:00 PM','1:00 PM',
+    '2:00 PM','3:00 PM','4:00 PM','5:00 PM',
+    '6:00 PM','7:00 PM'
+  ];
+
+  let selectedTime = '';
+
+  // ── Generar pills ─────────────────────────────────────────────
+  function buildPills() {
+    const container = document.getElementById('timePills');
+    shiftHours.forEach(h => {
+      const btn = document.createElement('button');
+      btn.textContent = h;
+      btn.dataset.value = h;
+      btn.onclick = () => selectPill(btn, h);
+      container.appendChild(btn);
+    });
+  }
+
+  function selectPill(btn, value) {
+    // deselect all pills
+    document.querySelectorAll('.time-pills button').forEach(b => b.classList.remove('active'));
+    // clear custom time
+    document.getElementById('customTime').value = '';
+    // activate this
+    btn.classList.add('active');
+    selectedTime = value;
+    updateBadge();
+  }
+
+  // ── Custom time input ─────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    buildPills();
+
+    document.getElementById('customTime').addEventListener('change', function() {
+      if (!this.value) return;
+      // deselect pills
+      document.querySelectorAll('.time-pills button').forEach(b => b.classList.remove('active'));
+      // format to 12h
+      const [hh, mm] = this.value.split(':');
+      const h = parseInt(hh);
+      const suffix = h >= 12 ? 'PM' : 'AM';
+      const h12 = h % 12 === 0 ? 12 : h % 12;
+      selectedTime = `${h12}:${mm} ${suffix}`;
+      updateBadge();
+    });
+  });
+
+  function updateBadge() {
+    document.getElementById('selectedTimeBadge').textContent =
+      selectedTime ? `⏰ ${selectedTime}` : 'Sin seleccionar';
+  }
+
+  // ── Reloj en header ───────────────────────────────────────────
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('reportTime').textContent =
+      now.toLocaleString('es-MX', {
+        weekday: 'short', month: 'short', day: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+  }
+  updateClock();
+  setInterval(updateClock, 10000);
+
+  // ── Construir mensaje ─────────────────────────────────────────
+  function buildMessage() {
+    if (!selectedTime) {
+      alert('⚠️ Por favor selecciona la hora del reporte.');
+      return null;
+    }
+
+    const v = id => document.getElementById(id).value.trim();
+    const produced = v('produced');
+    const target   = v('target');
+    const diff     = parseInt(produced) - parseInt(target);
+    const pct      = Math.round((parseInt(produced) / parseInt(target)) * 100);
+    const diffStr  = diff >= 0 ? `+${diff}` : `${diff}`;
+
+    const offLines = v('offlineDetail')
+      .split('
+')
+      .filter(l => l.trim())
+      .map(l => `  - ${l.trim()}`)
+      .join('
+');
+
+    const equipLines = v('equipDetail')
+      .split('
+')
+      .filter(l => l.trim())
+      .map(l => `  - ${l.trim()}`)
+      .join('
+');
+
+    return `*${v('reportTitle')}*
+*Numbers at ${selectedTime}*
+${produced} out of ${target} (${diffStr} vs ${pct}%)
+
+*Buffer UB2:* ${v('buffer')}
+
+*OR:* ${v('or')}%
+*DRR:* ${v('drr')}%
+
+*Offline:* ${v('offlineCount')}
+${offLines}
+
+*Work delay:* ${v('workDelay')}
+*Short Stop:* ${v('shortStop')}
+*Full Stop:* ${v('fullStop')}
+*Part Short:* ${v('partShort')}
+
+*Equipment:* ${v('equipTime')}
+${equipLines}`;
+  }
+
+  // ── Enviar a WhatsApp ─────────────────────────────────────────
+  function sendToWhatsApp() {
+    const msg = buildMessage();
+    if (!msg) return;
+    document.getElementById('genTimestamp').textContent =
+      '✅ Generado: ' + new Date().toLocaleTimeString();
+    const url = 'https://wa.me/?text=' + encodeURIComponent(msg);
+    window.open(url, '_blank');
+  }
+
+  // ── Resetear formulario ───────────────────────────────────────
+  function resetForm() {
+    if (confirm('¿Resetear todos los valores?')) location.reload();
+  }
+</script>
+
+</body>
+</html>
