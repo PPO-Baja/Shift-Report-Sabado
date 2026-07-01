@@ -1,7 +1,7 @@
 {
   "name": "Shift Report",
-  "short_name": "ShiftRpt",
-  "start_url": "/index.html",
+  "short_name": "Reporte de turno",
+  "start_url": "/Shift-Report/",
   "display": "standalone",
   "background_color": "#f0f2f5",
   "theme_color": "#EB0A1E",
