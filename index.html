@@ -22,8 +22,7 @@
       text-align: center;
     }
     header h1 { font-size: 1.2rem; letter-spacing: 1px; }
-    header p  { font-size: 0.8rem; opacity: 0.85; margin-top: 2px; }
-
+    header p { font-size: 0.8rem; opacity: 0.85; margin-top: 2px; }
     .card {
       background: white;
       border-radius: 0 0 12px 12px;
@@ -70,38 +69,6 @@
     .metric textarea { font-size: 0.8rem; font-weight: 400; }
     .full-width { grid-column: 1 / -1; }
 
-    /* ── Shift Pills ── */
-    .shift-pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    .shift-pills button {
-      flex: 1 1 calc(25% - 8px);
-      min-width: 70px;
-      padding: 9px 4px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      background: white;
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: #444;
-      cursor: pointer;
-      transition: all 0.15s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .shift-pills button.active {
-      background: #036587;
-      border-color: #036587;
-      color: white;
-    }
-    .shift-pills button:hover:not(.active) {
-      border-color: #036587;
-      color: #036587;
-    }
-
-    /* ── Time Pills ── */
     .time-pills {
       display: flex;
       flex-wrap: wrap;
@@ -120,7 +87,6 @@
       color: #444;
       cursor: pointer;
       transition: all 0.15s;
-      -webkit-tap-highlight-color: transparent;
     }
     .time-pills button.active {
       background: #EB0A1E;
@@ -131,19 +97,31 @@
       border-color: #EB0A1E;
       color: #EB0A1E;
     }
-
-    .selected-time-badge {
-      display: inline-block;
-      background: #fff3f3;
-      border: 1px solid #EB0A1E;
-      color: #EB0A1E;
-      border-radius: 6px;
-      padding: 2px 10px;
-      font-size: 0.78rem;
-      font-weight: 700;
+    .custom-time-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       margin-top: 8px;
     }
-
+    .custom-time-row label {
+      font-size: 0.72rem;
+      color: #888;
+      white-space: nowrap;
+    }
+    .custom-time-row input[type="time"] {
+      flex: 1;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #1a1a1a;
+      background: white;
+    }
+    .custom-time-row input[type="time"]:focus {
+      outline: none;
+      border-color: #EB0A1E;
+    }
     .btn-send {
       width: 100%;
       background: #25D366;
@@ -162,7 +140,6 @@
       letter-spacing: 0.5px;
     }
     .btn-send:active { opacity: 0.85; }
-
     .btn-reset {
       width: 100%;
       background: #eee;
@@ -180,19 +157,17 @@
       color: #aaa;
       margin-top: 12px;
     }
-    .shift-info-badge {
-      background: #eaf4f8;
-      border: 1px solid #036587;
-      border-radius: 8px;
-      padding: 8px 12px;
+    .selected-time-badge {
+      display: inline-block;
+      background: #fff3f3;
+      border: 1px solid #EB0A1E;
+      color: #EB0A1E;
+      border-radius: 6px;
+      padding: 2px 10px;
       font-size: 0.78rem;
-      color: #036587;
-      font-weight: 600;
-      text-align: center;
+      font-weight: 700;
       margin-top: 8px;
-      display: none;
     }
-    .shift-info-badge.visible { display: block; }
   </style>
 </head>
 <body>
@@ -204,47 +179,49 @@
 
 <div class="card">
 
-  <!-- ① SHIFT -->
+  <!-- SHIFT SELECTOR -->
   <div class="section">
-    <h2>🏷 Shift</h2>
-    <div class="shift-pills" id="shiftPills">
-      <button type="button" id="btn-morning">🌅 Morning</button>
-      <button type="button" id="btn-afternoon">🌤 Afternoon</button>
-      <button type="button" id="btn-night">🌙 Night</button>
-      <button type="button" id="btn-saturday">📅 Saturday</button>
+    <h2>🔄 Shift</h2>
+    <div class="metric">
+      <label>Select Shift</label>
+      <select id="shiftSelector">
+        <option value="Turno 1">Shift 1 (6:00 AM - 1:50 PM)</option>
+        <option value="Turno 2">Shift 2 (1:50 PM - 10:30 PM)</option>
+        <option value="Turno 3" selected>Shift 3 (10:30 PM - 6:00 AM)</option>
+        <option value="Turno 4">Shift 4 — Saturday (6:00 AM - 4:06 PM)</option>
+      </select>
     </div>
-    <div class="shift-info-badge" id="shiftInfoBadge"></div>
   </div>
 
-  <!-- ② REPORT TIME -->
+  <!-- REPORT TIME -->
   <div class="section">
     <h2>🕐 Report Time</h2>
-    <div class="time-pills" id="timePills">
-      <p id="timePlaceholder" style="font-size:0.78rem;color:#aaa;">
-        ← Select a shift first
-      </p>
+    <div class="time-pills" id="timePills"></div>
+    <div class="custom-time-row">
+      <label>Custom:</label>
+      <input type="time" id="customTime" />
     </div>
     <div style="text-align:center">
       <span class="selected-time-badge" id="selectedTimeBadge">Not selected</span>
     </div>
   </div>
 
-  <!-- ③ REPORT TYPE -->
+  <!-- TITLE -->
   <div class="section">
     <h2>📌 Report Type</h2>
     <div class="metric">
       <label>Title</label>
       <select id="reportTitle">
         <option value="Final">Final</option>
-        <option value="Trim">Trim</option>
-        <option value="Chassis">Chassis</option>
-        <option value="Engines">Engines</option>
-        <option value="Doors">Doors</option>
+        <option value="Hourly">Trim</option>
+        <option value="Mid-Shift">Chassis</option>
+        <option value="Start of Shift">Engines</option>
+        <option value="End of Shift">Doors</option>
       </select>
     </div>
   </div>
 
-  <!-- ④ PRODUCTION -->
+  <!-- PRODUCTION -->
   <div class="section">
     <h2>🏭 Production</h2>
     <div class="grid-2">
@@ -261,14 +238,10 @@
         <input type="number" id="buffer" value="0" min="0" />
       </div>
     </div>
-    <div id="productionStatus"
-         style="margin-top:10px;padding:12px;border-radius:8px;
-                background:#f5f5f5;font-weight:bold;text-align:center;color:#888;">
-      Select a shift &amp; time
-    </div>
+    <div id="productionStatus" style="margin-top:10px;padding:12px;border-radius:8px;background:#f5f5f5;font-weight:bold;text-align:center;">Select a time</div>
   </div>
 
-  <!-- ⑤ KPIs -->
+  <!-- KPIs -->
   <div class="section">
     <h2>📊 KPIs</h2>
     <div class="grid-2">
@@ -283,7 +256,7 @@
     </div>
   </div>
 
-  <!-- ⑥ OFFLINE -->
+  <!-- OFFLINE -->
   <div class="section">
     <h2>🔴 Offline</h2>
     <div class="grid-2">
@@ -293,50 +266,50 @@
       </div>
       <div class="metric full-width">
         <label>Detail (one reason per line)</label>
-        <textarea id="offlineDetail" rows="7"></textarea>
+        <textarea id="offlineDetail" rows="7"> </textarea>
       </div>
     </div>
   </div>
 
-  <!-- ⑦ STOPS & DELAYS -->
+  <!-- STOPS AND DELAYS -->
   <div class="section">
     <h2>⏱ Stops &amp; Delays</h2>
     <div class="grid-2">
       <div class="metric">
         <label>Work Delay</label>
-        <input type="text" id="workDelay" value="0" />
+        <input type="text" id="workDelay" value="0" placeholder="0" />
       </div>
       <div class="metric">
         <label>Short Stop</label>
-        <input type="text" id="shortStop" value="0" />
+        <input type="text" id="shortStop" value="0" min="0" />
       </div>
       <div class="metric">
         <label>Full Stop</label>
-        <input type="text" id="fullStop" value="0" />
+        <input type="text" id="fullStop" value="0" min="0" />
       </div>
       <div class="metric">
         <label>Part Short</label>
-        <input type="text" id="partShort" value="0" />
+        <input type="text" id="partShort" value="0" min="0" />
       </div>
     </div>
   </div>
 
-  <!-- ⑧ EQUIPMENT -->
+  <!-- EQUIPMENT -->
   <div class="section">
     <h2>🔧 Equipment</h2>
     <div class="grid-2">
       <div class="metric">
         <label>Time</label>
-        <input type="text" id="equipTime" value="0" />
+        <input type="text" id="equipTime" value='0' />
       </div>
       <div class="metric full-width">
         <label>Detail</label>
-        <textarea id="equipDetail" rows="4"></textarea>
+        <textarea id="equipDetail" rows="4"> </textarea>
       </div>
     </div>
   </div>
 
-  <!-- ⑨ BUTTONS -->
+  <!-- BUTTONS -->
   <button class="btn-send" id="btnSend">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
       <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15
@@ -355,365 +328,284 @@
     </svg>
     Send via WhatsApp
   </button>
-  <button class="btn-reset" id="btnReset">🔄 Clear / Reset</button>
-  <p class="timestamp" id="genTimestamp"></p>
 
-</div><!-- /.card -->
+  <button class="btn-reset" id="btnReset">🔄 Clear / Reset</button>
+
+  <p class="timestamp" id="genTimestamp"></p>
+</div>
 
 <script>
-/* ═══════════════════════════════════════════
-   SHIFT PLANS
-   Each key  → checkpoint label shown on pill
-   target    → planned units at that checkpoint
-   minutes   → elapsed productive minutes
-═══════════════════════════════════════════ */
-var SHIFTS = {
-  morning: {
-    label: '🌅 Morning',
-    hours: '6:30 AM – 3:00 PM',
-    totalUnits: 201,
-    plan: {
-      '07:30 AM': { target: 15,  minutes: 30  },
-      '08:30 AM': { target: 47,  minutes: 90  },
-      '09:30 AM': { target: 74,  minutes: 140 },
-      '10:30 AM': { target: 101, minutes: 200 },
-      '11:30 AM': { target: 122, minutes: 230 },
-      '12:30 PM': { target: 153, minutes: 290 },
-      '01:30 PM': { target: 180, minutes: 340 },
-      '02:30 PM': { target: 201, minutes: 400 }
+// ==========================================
+// DEFINICIÓN DE TURNOS
+// ==========================================
+const shifts = {
+  'Turno 1': {
+    name: 'Shift 1',
+    start: '6:00 AM',
+    end: '1:50 PM',
+    orFactor: 1.8833,
+    productionPlan: {
+      '06:00 AM': { target: 0,   minutes: 0 },
+      '07:00 AM': { target: 27,  minutes: 60 },
+      '08:00 AM': { target: 54,  minutes: 120 },
+      '09:00 AM': { target: 74,  minutes: 170 },
+      '10:00 AM': { target: 101, minutes: 230 },
+      '11:00 AM': { target: 128, minutes: 290 },
+      '12:00 PM': { target: 155, minutes: 350 },
+      '01:00 PM': { target: 180, minutes: 400 },
+      '01:50 PM': { target: 201, minutes: 470 }
     }
   },
-  afternoon: {
-    label: '🌤 Afternoon',
-    hours: '3:30 PM – 12:00 AM',
-    totalUnits: 201,
-    plan: {
-      '04:30 PM': { target: 15,  minutes: 30  },
-      '05:30 PM': { target: 47,  minutes: 90  },
-      '06:30 PM': { target: 74,  minutes: 140 },
-      '07:30 PM': { target: 101, minutes: 200 },
-      '08:30 PM': { target: 122, minutes: 230 },
-      '09:30 PM': { target: 153, minutes: 290 },
-      '10:30 PM': { target: 180, minutes: 340 },
-      '11:30 PM': { target: 201, minutes: 400 }
+  'Turno 2': {
+    name: 'Shift 2',
+    start: '1:50 PM',
+    end: '10:30 PM',
+    orFactor: 1.8833,
+    productionPlan: {
+      '01:50 PM': { target: 0,   minutes: 0 },
+      '03:00 PM': { target: 27,  minutes: 70 },
+      '04:00 PM': { target: 54,  minutes: 130 },
+      '05:00 PM': { target: 74,  minutes: 180 },
+      '06:00 PM': { target: 101, minutes: 240 },
+      '07:00 PM': { target: 128, minutes: 300 },
+      '08:00 PM': { target: 155, minutes: 360 },
+      '09:00 PM': { target: 180, minutes: 420 },
+      '10:30 PM': { target: 201, minutes: 520 }
     }
   },
-  night: {
-    label: '🌙 Night',
-    hours: '11:00 PM – 7:30 AM',
-    totalUnits: 201,
-    plan: {
-      '11:30 PM': { target: 15,  minutes: 30  },
-      '12:30 AM': { target: 47,  minutes: 90  },
-      '01:30 AM': { target: 74,  minutes: 140 },
-      '02:30 AM': { target: 101, minutes: 200 },
-      '03:30 AM': { target: 122, minutes: 230 },
-      '04:30 AM': { target: 153, minutes: 290 },
-      '05:30 AM': { target: 180, minutes: 340 },
-      '06:30 AM': { target: 201, minutes: 400 }
+  'Turno 3': {
+    name: 'Shift 3',
+    start: '10:30 PM',
+    end: '6:00 AM',
+    orFactor: 1.8833,
+    productionPlan: {
+      '11:00 PM': { target: 15,  minutes: 30 },
+      '12:00 AM': { target: 47,  minutes: 90 },
+      '01:00 AM': { target: 74,  minutes: 140 },
+      '02:00 AM': { target: 101, minutes: 200 },
+      '03:00 AM': { target: 122, minutes: 230 },
+      '04:00 AM': { target: 153, minutes: 290 },
+      '05:00 AM': { target: 180, minutes: 340 },
+      '06:00 AM': { target: 201, minutes: 400 }
     }
   },
-  saturday: {
-    label: '📅 Saturday',
-    hours: '6:30 AM – 1:00 PM (OT)',
-    totalUnits: 120,
-    plan: {
-      '07:30 AM': { target: 15,  minutes: 30  },
-      '08:30 AM': { target: 40,  minutes: 90  },
-      '09:30 AM': { target: 65,  minutes: 140 },
-      '10:30 AM': { target: 85,  minutes: 200 },
-      '11:30 AM': { target: 100, minutes: 230 },
-      '12:30 PM': { target: 120, minutes: 290 }
+  'Turno 4': {
+    name: 'Shift 4 (Saturday)',
+    start: '6:00 AM',
+    end: '4:06 PM',
+    orFactor: 1.8833,
+    productionPlan: {
+      '06:00 AM': { target: 0,   minutes: 0 },
+      '07:00 AM': { target: 27,  minutes: 60 },
+      '08:00 AM': { target: 54,  minutes: 120 },
+      '09:00 AM': { target: 74,  minutes: 170 },
+      '10:00 AM': { target: 101, minutes: 230 },
+      '11:00 AM': { target: 128, minutes: 290 },
+      '12:00 PM': { target: 155, minutes: 350 },
+      '01:00 PM': { target: 180, minutes: 400 },
+      '02:00 PM': { target: 201, minutes: 460 },
+      '03:00 PM': { target: 220, minutes: 520 },
+      '04:06 PM': { target: 240, minutes: 606 }
     }
   }
 };
 
-/* ── State ── */
-var currentShift = null;
-var selectedTime  = '';
+let selectedShift = 'Turno 3';
+let selectedTime = '';
 
-/* ══════════════════════════════════════════
-   INIT — runs after full DOM is ready
-══════════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', function () {
-
-  /* Wire shift buttons individually by ID */
-  document.getElementById('btn-morning')
-    .addEventListener('click', function () { selectShift('morning', this); });
-  document.getElementById('btn-afternoon')
-    .addEventListener('click', function () { selectShift('afternoon', this); });
-  document.getElementById('btn-night')
-    .addEventListener('click', function () { selectShift('night', this); });
-  document.getElementById('btn-saturday')
-    .addEventListener('click', function () { selectShift('saturday', this); });
-
-  /* Send / Reset */
-  document.getElementById('btnSend')
-    .addEventListener('click', sendToWhatsApp);
-  document.getElementById('btnReset')
-    .addEventListener('click', resetForm);
-
-  /* Live recalc */
-  document.getElementById('produced')
-    .addEventListener('input', calculateKPIs);
-
-  /* Clock */
-  updateClock();
-  setInterval(updateClock, 10000);
-});
-
-/* ══════════════════════════════════════════
-   SHIFT SELECTION
-══════════════════════════════════════════ */
-function selectShift(shiftKey, btn) {
-  /* 1. Highlight selected shift button */
-  var shiftBtns = document.querySelectorAll('#shiftPills button');
-  for (var i = 0; i < shiftBtns.length; i++) {
-    shiftBtns[i].classList.remove('active');
-  }
-  btn.classList.add('active');
-
-  /* 2. Update state */
-  currentShift = SHIFTS[shiftKey];
-  selectedTime  = '';
-
-  /* 3. Info badge */
-  var badge = document.getElementById('shiftInfoBadge');
-  badge.textContent =
-    currentShift.label + '  ·  ' +
-    currentShift.hours + '  ·  Plan: ' +
-    currentShift.totalUnits + ' units';
-  badge.classList.add('visible');
-
-  /* 4. Rebuild time pills */
-  buildTimePills();
-
-  /* 5. Reset downstream */
-  updateBadge();
-  resetProductionStatus();
-  document.getElementById('target').value = '';
-  document.getElementById('or').value     = '';
+function getCurrentPlan() {
+  return shifts[selectedShift].productionPlan;
 }
 
-/* ══════════════════════════════════════════
-   TIME PILLS
-══════════════════════════════════════════ */
-function buildTimePills() {
-  var container   = document.getElementById('timePills');
-  container.innerHTML = '';
-
-  if (!currentShift) {
-    container.innerHTML =
-      '<p id="timePlaceholder" style="font-size:0.78rem;color:#aaa;">' +
-      '← Select a shift first</p>';
-    return;
-  }
-
-  var hours = Object.keys(currentShift.plan);
-  for (var i = 0; i < hours.length; i++) {
-    (function (h) {
-      var btn = document.createElement('button');
-      btn.type        = 'button';
-      btn.textContent = h;
-      btn.addEventListener('click', function () {
-        selectTimePill(this, h);
-      });
-      container.appendChild(btn);
-    })(hours[i]);
-  }
-}
-
-function selectTimePill(btn, value) {
-  var pills = document.querySelectorAll('#timePills button');
-  for (var i = 0; i < pills.length; i++) {
-    pills[i].classList.remove('active');
-  }
-  btn.classList.add('active');
-  selectedTime = value;
-  updateBadge();
-  calculateKPIs();
-}
-
-function updateBadge() {
-  document.getElementById('selectedTimeBadge').textContent =
-    selectedTime ? '⏰ ' + selectedTime : 'Not selected';
-}
-
-/* ══════════════════════════════════════════
-   KPI CALCULATION
-══════════════════════════════════════════ */
 function calculateKPIs() {
-  if (!selectedTime || !currentShift) return;
+  const plan = getCurrentPlan();
+  if (!selectedTime || !plan[selectedTime]) return;
 
-  var checkpoint = currentShift.plan[selectedTime];
-  if (!checkpoint) return;
-
-  var produced = Number(document.getElementById('produced').value) || 0;
-  var target   = checkpoint.target;
-  var minutes  = checkpoint.minutes;
+  const produced = Number(document.getElementById('produced').value) || 0;
+  const target = plan[selectedTime].target;
+  const minutes = plan[selectedTime].minutes;
+  const orFactor = shifts[selectedShift].orFactor;
 
   document.getElementById('target').value = target;
 
-  var or = minutes > 0 ? ((produced * 1.8833) / minutes) * 100 : 0;
+  const diff = produced - target;
+  const pct = target > 0 ? Math.round((produced / target) * 100) : 0;
+  const or = minutes > 0 ? ((produced * orFactor) / minutes) * 100 : 0;
+
   document.getElementById('or').value = or.toFixed(1);
 
-  var diff = produced - target;
-  var pct  = target > 0 ? Math.round((produced / target) * 100) : 0;
+  const status = document.getElementById('productionStatus');
+  if(status){
+    let color='#c62828', icon='🔴';
+    if(pct >= 100){ color='#2e7d32'; icon='🟢'; }
+    else if(pct >= 95){ color='#ef6c00'; icon='🟠'; }
 
-  var statusEl = document.getElementById('productionStatus');
-  var color = '#c62828', icon = '🔴';
-  if (pct >= 100) { color = '#2e7d32'; icon = '🟢'; }
-  else if (pct >= 95) { color = '#ef6c00'; icon = '🟠'; }
-
-  statusEl.style.color = color;
-  statusEl.innerHTML   =
-    icon + ' ' + produced + ' of ' + target +
-    ' (' + (diff >= 0 ? '+' : '') + diff +
-    ' vs Plan · ' + pct + '%)';
+    status.style.color=color;
+    status.innerHTML=`${icon} ${produced} of ${target} (${diff>=0?'+':''}${diff} vs ${pct}%)`;
+  }
 }
 
-function resetProductionStatus() {
-  var el = document.getElementById('productionStatus');
-  el.innerHTML   = 'Select a shift &amp; time';
-  el.style.color = '#888';
+function buildPills(){
+ const container=document.getElementById('timePills');
+ container.innerHTML='';
+ Object.keys(getCurrentPlan()).forEach(h=>{
+   const btn=document.createElement('button');
+   btn.type='button';
+   btn.textContent=h;
+   btn.onclick=()=>selectPill(btn,h);
+   container.appendChild(btn);
+ });
 }
 
-/* ══════════════════════════════════════════
-   VALUE HELPER
-══════════════════════════════════════════ */
-function v(id) {
-  return document.getElementById(id).value.trim();
+function selectPill(btn,value){
+ document.querySelectorAll('#timePills button').forEach(b=>b.classList.remove('active'));
+ document.getElementById('customTime').value='';
+ btn.classList.add('active');
+ selectedTime=value;
+ updateBadge();
+ calculateKPIs();
 }
 
-/* ══════════════════════════════════════════
-   BUILD WHATSAPP MESSAGE
-══════════════════════════════════════════ */
-function buildMessage() {
-  if (!currentShift) { alert('Select a shift first.');   return null; }
-  if (!selectedTime)  { alert('Select the report time.'); return null; }
+function updateBadge(){
+ document.getElementById('selectedTimeBadge').textContent =
+   selectedTime ? '⏰ '+selectedTime : 'Not selected';
+}
 
-  var produced = Number(v('produced')) || 0;
-  var target   = Number(v('target'))   || 0;
-  var diff     = produced - target;
-  var pct      = target > 0 ? Math.round((produced / target) * 100) : 0;
+function onCustomTimeChange(){
+ const val=document.getElementById('customTime').value;
+ if(!val) return;
+ document.querySelectorAll('#timePills button').forEach(b=>b.classList.remove('active'));
+ const [hh,mm]=val.split(':');
+ const h=Number(hh);
+ selectedTime=((h%12)||12)+':'+mm.padStart(2,'0')+' '+(h>=12?'PM':'AM');
+ updateBadge();
+ calculateKPIs();
+}
 
-  function fmtLines(text) {
-    return text.split('
+function updateClock(){
+ document.getElementById('reportTime').textContent =
+ new Date().toLocaleString('es-MX',{
+   weekday:'short',month:'short',day:'numeric',
+   hour:'2-digit',minute:'2-digit'
+ });
+}
+
+function v(id){
+ return document.getElementById(id).value.trim();
+}
+
+function buildMessage(){
+ if(!selectedTime){
+   alert('Select the report time.');
+   return null;
+ }
+
+ const produced=Number(v('produced'))||0;
+ const target=Number(v('target'))||0;
+ const diff=produced-target;
+ const pct=target>0?Math.round((produced/target)*100):0;
+
+ const offline=v('offlineDetail')
+   .split('
 ')
-      .filter(function (x) { return x.trim(); })
-      .map(function (x)    { return '- ' + x.trim(); })
-      .join('
+   .filter(x=>x.trim())
+   .map(x=>'- '+x.trim())
+   .join('
 ');
-  }
 
-  var offline = fmtLines(v('offlineDetail')) || '- N/A';
-  var equip   = fmtLines(v('equipDetail'))   || '- N/A';
+ const equip=v('equipDetail')
+   .split('
+')
+   .filter(x=>x.trim())
+   .map(x=>'- '+x.trim())
+   .join('
+');
 
-  return (
-    v('reportTitle') + ' Report — ' +
-    currentShift.label + ' (' + currentShift.hours + ')
-' +
-    'Final numbers at ' + selectedTime + '
+ return `${v('reportTitle')}
+Final numbers at ${selectedTime}
+${shifts[selectedShift].name}
 
-' +
-    produced + ' of ' + target +
-    ' (' + (diff >= 0 ? '+' : '') + diff +
-    ' vs Plan · ' + pct + '%)
+${produced} of ${target} (${diff>=0?'+':''}${diff} vs Plan)
 
-' +
-    'Buffer UB2: ' + v('buffer') + '
+Buffer UB2: ${v('buffer')}
 
-' +
-    'OR:  ' + v('or')  + '%
-' +
-    'DRR: ' + v('drr') + '%
+OR: ${v('or')}%
+DRR: ${v('drr')}%
 
-' +
-    'Offline: ' + v('offlineCount') + '
-' + offline + '
+Offline: ${v('offlineCount')}
+${offline}
 
-' +
-    'Work Delay: ' + v('workDelay')  + '
-' +
-    'Short Stop: ' + v('shortStop')  + '
-' +
-    'Full Stop:  ' + v('fullStop')   + '
-' +
-    'Part Short: ' + v('partShort')  + '
+Work delay: ${v('workDelay')}
 
-' +
-    'Equipment: ' + v('equipTime') + '
-' + equip
-  );
+Short Stop: ${v('shortStop')}
+
+Full Stop: ${v('fullStop')}
+
+Part Short: ${v('partShort')}
+
+Equipment: ${v('equipTime')}
+${equip}`;
 }
 
-/* ══════════════════════════════════════════
-   SEND
-══════════════════════════════════════════ */
-function sendToWhatsApp() {
-  var msg = buildMessage();
-  if (!msg) return;
-  document.getElementById('genTimestamp').textContent =
-    '✅ Generated: ' + new Date().toLocaleTimeString();
-  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+function sendToWhatsApp(){
+ const msg=buildMessage();
+ if(!msg) return;
+
+ document.getElementById('genTimestamp').textContent =
+ '✅ Generated: '+new Date().toLocaleTimeString();
+
+ window.open(
+   'https://wa.me/?text='+encodeURIComponent(msg),
+   '_blank'
+ );
 }
 
-/* ══════════════════════════════════════════
-   RESET
-══════════════════════════════════════════ */
-var NUMERIC_IDS = [
-  'produced', 'buffer', 'offlineCount',
-  'workDelay', 'shortStop', 'fullStop',
-  'partShort', 'equipTime', 'drr'
-];
+function resetForm(){
+ if(!confirm('Clear all fields?')) return;
 
-function resetForm() {
-  if (!confirm('Clear all fields?')) return;
+ selectedTime='';
+ updateBadge();
 
-  currentShift = null;
-  selectedTime  = '';
+ document.querySelectorAll('#timePills button').forEach(b=>b.classList.remove('active'));
 
-  /* Shift pills */
-  var sBtns = document.querySelectorAll('#shiftPills button');
-  for (var i = 0; i < sBtns.length; i++) {
-    sBtns[i].classList.remove('active');
-  }
-  document.getElementById('shiftInfoBadge').classList.remove('visible');
+ document.querySelectorAll('input').forEach(el=>{
+   if(el.type==='time') el.value='';
+   else el.value='';
+ });
 
-  /* Time pills */
-  buildTimePills();
+ document.querySelectorAll('textarea').forEach(el=>el.value='');
+
+ document.getElementById('reportTitle').value='Final';
+ document.getElementById('genTimestamp').textContent='';
+ document.getElementById('productionStatus').innerHTML='Select a time';
+ document.getElementById('productionStatus').style.color='';
+}
+
+// ==========================================
+// EVENTO CAMBIO DE TURNO
+// ==========================================
+document.getElementById('shiftSelector').addEventListener('change', function() {
+  selectedShift = this.value;
+  selectedTime = '';
   updateBadge();
-  resetProductionStatus();
-
-  /* Numeric → "0" */
-  for (var j = 0; j < NUMERIC_IDS.length; j++) {
-    document.getElementById(NUMERIC_IDS[j]).value = '0';
-  }
-
-  /* Computed read-only */
+  buildPills();
   document.getElementById('target').value = '';
-  document.getElementById('or').value     = '';
+  document.getElementById('or').value = '';
+  document.getElementById('productionStatus').innerHTML = 'Select a time';
+  document.getElementById('productionStatus').style.color = '';
+});
 
-  /* Select */
-  document.getElementById('reportTitle').value = 'Final';
+// ==========================================
+// INICIALIZACIÓN
+// ==========================================
+buildPills();
+updateClock();
+setInterval(updateClock,10000);
 
-  /* Textareas */
-  document.getElementById('offlineDetail').value = '';
-  document.getElementById('equipDetail').value   = '';
-
-  document.getElementById('genTimestamp').textContent = '';
-}
-
-/* ══════════════════════════════════════════
-   CLOCK
-══════════════════════════════════════════ */
-function updateClock() {
-  document.getElementById('reportTime').textContent =
-    new Date().toLocaleString('es-MX', {
-      weekday: 'short', month: 'short', day: 'numeric',
-      hour: '2-digit', minute: '2-digit'
-    });
-}
+document.getElementById('customTime').addEventListener('change',onCustomTimeChange);
+document.getElementById('btnSend').addEventListener('click',sendToWhatsApp);
+document.getElementById('btnReset').addEventListener('click',resetForm);
+document.getElementById('produced').addEventListener('input',calculateKPIs);
 </script>
 
 </body>
